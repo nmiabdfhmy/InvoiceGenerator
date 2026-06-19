@@ -710,6 +710,8 @@
             const clientFormatted = client.toUpperCase().replace(/\s+/g, '_');
             const autoInvoiceId = `MSA-NPRO-${clientFormatted}-${invSeq}`;
 
+            document.title = autoInvoiceId;
+
             // Map Teks: Worker & Client
             document.getElementById('out-worker-meta').innerText = worker;
             document.getElementById('out-worker-header').innerText = worker;

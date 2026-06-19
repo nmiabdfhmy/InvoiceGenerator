@@ -149,6 +149,14 @@
         /* Scrollbar Sidebar */
         .sidebar-scroll::-webkit-scrollbar { width: 6px; }
         .sidebar-scroll::-webkit-scrollbar-thumb { background: #475569; border-radius: 4px; }
+
+        /* Package Visibility */
+        .package-card {
+            display: none;
+        }
+        .package-card.active {
+            display: block;
+        }
     </style>
 </head>
 <body class="flex h-screen overflow-hidden bg-slate-300 font-[Poppins]">
@@ -189,32 +197,58 @@
                 </div>
                 <div>
                     <label class="block text-[11px] font-semibold text-slate-400 mb-1 uppercase">No. Rekening</label>
-                    <input type="text" id="in-norek" value="1234567890" placeholder="Masukkan angka rekening" class="w-full bg-slate-800 border border-slate-700 rounded px-3 py-2 text-sm text-white focus:outline-none focus:border-sky-500 transition-colors">
+                    <input type="text" id="in-norek" value="7741096327" placeholder="Masukkan angka rekening" class="w-full bg-slate-800 border border-slate-700 rounded px-3 py-2 text-sm text-white focus:outline-none focus:border-sky-500 transition-colors">
                 </div>
                 <div>
                     <label class="block text-[11px] font-semibold text-slate-400 mb-1 uppercase">Atas Nama (A/N)</label>
-                    <input type="text" id="in-namarek" value="NK Projects .std" placeholder="Nama Pemilik Rekening" class="w-full bg-slate-800 border border-slate-700 rounded px-3 py-2 text-sm text-white focus:outline-none focus:border-sky-500 transition-colors">
+                    <input type="text" id="in-namarek" value="Fahmi Nugraha" placeholder="Nama Pemilik Rekening" class="w-full bg-slate-800 border border-slate-700 rounded px-3 py-2 text-sm text-white focus:outline-none focus:border-sky-500 transition-colors">
                 </div>
             </div>
 
             <!-- SECTION: Data Proyek -->
             <div class="space-y-4">
                 <h2 class="text-[10px] font-bold text-sky-500 uppercase tracking-wider border-b border-slate-800 pb-1">Detail Proyek</h2>
-                <div>
-                    <label class="block text-[11px] font-semibold text-slate-400 mb-1 uppercase">Total Harga Kontrak (Rp)</label>
-                    <input type="number" id="in-price" value="5000000" class="w-full bg-slate-800 border border-slate-700 rounded px-3 py-2 text-sm text-white focus:outline-none focus:border-sky-500 transition-colors">
+                
+                <!-- KONTRAK DINAMIS -->
+                <div id="contracts-container" class="space-y-4">
+                    <div class="contract-item bg-slate-800 border border-slate-700 rounded p-3 space-y-3">
+                        <div class="flex items-center justify-between mb-2">
+                            <span class="text-[10px] font-bold text-sky-400">Kontrak #1</span>
+                            <button type="button" onclick="removeContract(this)" class="text-red-500 hover:text-red-400 text-sm font-bold hidden">✕</button>
+                        </div>
+                        <div>
+                            <label class="block text-[10px] font-semibold text-slate-400 mb-1 uppercase">Jasa Yang Dikontrak</label>
+                            <input type="text" class="contract-service w-full bg-slate-700 border border-slate-600 rounded px-2 py-1.5 text-xs text-white focus:outline-none focus:border-sky-500 transition-colors" value="Jasa Pengembangan Aplikasi & Sistem">
+                        </div>
+                        <div>
+                            <label class="block text-[10px] font-semibold text-slate-400 mb-1 uppercase">Detail Pekerjaan</label>
+                            <textarea rows="2" class="contract-detail w-full bg-slate-700 border border-slate-600 rounded px-2 py-1.5 text-xs text-white focus:outline-none focus:border-sky-500 transition-colors">Mencakup pembuatan arsitektur modular, manajemen state/data store, serta perancangan antarmuka pengguna performa tinggi.</textarea>
+                        </div>
+                        <div>
+                            <label class="block text-[10px] font-semibold text-slate-400 mb-1 uppercase">Harga Kontrak (Rp)</label>
+                            <input type="number" class="contract-price w-full bg-slate-700 border border-slate-600 rounded px-2 py-1.5 text-xs text-white focus:outline-none focus:border-sky-500 transition-colors" value="5000000">
+                        </div>
+                    </div>
                 </div>
+
+                <button type="button" onclick="addContract()" class="w-full bg-slate-700 hover:bg-slate-600 border border-slate-600 hover:border-sky-500 text-sky-400 font-bold py-2 px-3 rounded text-sm transition-colors flex items-center justify-center gap-2">
+                    <span>+</span> Tambah Kontrak
+                </button>
+
+                <!-- WAKTU PENGERJAAN -->
                 <div>
-                    <label class="block text-[11px] font-semibold text-slate-400 mb-1 uppercase">Jasa Yang Dikontrak</label>
-                    <input type="text" id="in-service" value="Jasa Pengembangan Aplikasi & Sistem" class="w-full bg-slate-800 border border-slate-700 rounded px-3 py-2 text-sm text-white focus:outline-none focus:border-sky-500 transition-colors">
-                </div>
-                <div>
-                    <label class="block text-[11px] font-semibold text-slate-400 mb-1 uppercase">Detail Pekerjaan</label>
-                    <textarea id="in-detail" rows="3" class="w-full bg-slate-800 border border-slate-700 rounded px-3 py-2 text-sm text-white focus:outline-none focus:border-sky-500 transition-colors">Mencakup pembuatan arsitektur modular, manajemen state/data store, serta perancangan antarmuka pengguna performa tinggi.</textarea>
-                </div>
-                <div>
-                    <label class="block text-[11px] font-semibold text-slate-400 mb-1 uppercase">Business Days (Waktu Kerja)</label>
+                    <label class="block text-[11px] font-semibold text-slate-400 mb-1 uppercase">Total Business Days (Waktu Kerja)</label>
                     <input type="text" id="in-days" value="14 Hari Kerja" class="w-full bg-slate-800 border border-slate-700 rounded px-3 py-2 text-sm text-white focus:outline-none focus:border-sky-500 transition-colors">
+                </div>
+
+                <!-- PAKET LISENSI -->
+                <div>
+                    <label class="block text-[11px] font-semibold text-slate-400 mb-1 uppercase">Paket Lisensi (Packages)</label>
+                    <select id="in-package" class="w-full bg-slate-800 border border-slate-700 rounded px-3 py-2 text-sm text-white focus:outline-none focus:border-sky-500 transition-colors">
+                        <option value="1">Paket 1: Encrypted, Licensed (Tertutup)</option>
+                        <option value="2">Paket 2: Open Source, Licensed (Terbatas)</option>
+                        <option value="3" selected>Paket 3: Open Source, Unlicensed (Komersial)</option>
+                    </select>
                 </div>
             </div>
 
@@ -303,28 +337,21 @@
                         <thead>
                             <tr>
                                 <th style="width: 5%;" class="text-center">No</th>
-                                <th style="width: 55%;">Deskripsi Pekerjaan Pemrograman</th>
+                                <th style="width: 50%;">Deskripsi Pekerjaan Pemrograman</th>
                                 <th style="width: 15%;" class="text-center">Paket Aset</th>
-                                <th style="width: 25%;" class="text-right">Nilai Kontrak</th>
+                                <th style="width: 30%;" class="text-right">Nilai Kontrak</th>
                             </tr>
                         </thead>
-                        <tbody>
-                            <tr>
-                                <td class="text-center">1</td>
-                                <td>
-                                    <span class="font-bold" style="color: #1a365d;" id="out-service">Jasa Pengembangan</span><br>
-                                    <span style="font-size: 8.5pt; color: #64748b;" id="out-detail">
-                                        Detail pekerjaan.
-                                    </span>
-                                    <div style="font-size: 8.5pt; color: #0284c7; font-weight: 600; margin-top: 2mm;">
-                                        Waktu Pengerjaan: <span id="out-days">14 Hari Kerja</span>
-                                    </div>
-                                </td>
-                                <td class="text-center font-bold" style="color: #0284c7;">Packages 3<br><span style="font-size: 7.5pt; font-weight: normal; color: #64748b;">Commercial Use</span></td>
-                                <td class="text-right font-bold" id="out-price-total">[Nilai Kontrak]</td>
-                            </tr>
+                        <tbody id="contracts-table-body">
+                            <!-- Akan diisi dinamis oleh JavaScript -->
                         </tbody>
                     </table>
+
+                    <!-- WAKTU PENGERJAAN (TERPISAH) -->
+                    <div style="margin-top: 4mm; margin-bottom: 6mm; padding: 3mm; background-color: #f8fafc; border-left: 3px solid #0284c7; border-radius: 2px;">
+                        <span style="font-size: 9pt; font-weight: 600; color: #1a365d;">Waktu Pengerjaan: </span>
+                        <span style="font-size: 9pt; color: #0284c7; font-weight: 600;" id="out-days">14 Hari Kerja</span>
+                    </div>
             
                     <h2>2. Struktur Pembayaran Termin (Milestone)</h2>
                     <p style="font-size: 9.5pt;">Mekanisme pembiayaan wajib diselesaikan berdasarkan ketentuan pembagian 50% di awal dan 50% di akhir proyek:</p>
@@ -421,7 +448,7 @@
                     Hak kekayaan intelektual atas baris kode, arsitektur data, dan aset sistem dikelompokkan menjadi 3 (tiga) skema paket operasional yang mengikat:
                 </p>
         
-                <div class="package-card">
+                <div class="package-card package-1">
                     <div class="package-badge">Paket Terkunci</div>
                     <div class="package-name">Packages 1 : Encrypted, Licensed</div>
                     <p style="margin-bottom: 0; font-size: 9.5pt;">
@@ -429,7 +456,7 @@
                     </p>
                 </div>
         
-                <div class="package-card">
+                <div class="package-card package-2">
                     <div class="package-badge">Paket Terbatas</div>
                     <div class="package-name">Packages 2 : Open Source, Licensed</div>
                     <p style="margin-bottom: 0; font-size: 9.5pt;">
@@ -437,7 +464,7 @@
                     </p>
                 </div>
         
-                <div class="package-card">
+                <div class="package-card package-3 active">
                     <div class="package-badge">Paket Komersial Penuh</div>
                     <div class="package-name">Packages 3 : Open Source, Unlicensed, Commercial Use</div>
                     <p style="margin-bottom: 0; font-size: 9.5pt;">
@@ -525,6 +552,146 @@
             }).format(angka);
         };
 
+        // Fungsi Tambah Kontrak
+        function addContract() {
+            const container = document.getElementById('contracts-container');
+            const contractCount = container.querySelectorAll('.contract-item').length + 1;
+            
+            const newContract = document.createElement('div');
+            newContract.className = 'contract-item bg-slate-800 border border-slate-700 rounded p-3 space-y-3';
+            newContract.innerHTML = `
+                <div class="flex items-center justify-between mb-2">
+                    <span class="text-[10px] font-bold text-sky-400">Kontrak #${contractCount}</span>
+                    <button type="button" onclick="removeContract(this)" class="text-red-500 hover:text-red-400 text-sm font-bold">✕</button>
+                </div>
+                <div>
+                    <label class="block text-[10px] font-semibold text-slate-400 mb-1 uppercase">Jasa Yang Dikontrak</label>
+                    <input type="text" class="contract-service w-full bg-slate-700 border border-slate-600 rounded px-2 py-1.5 text-xs text-white focus:outline-none focus:border-sky-500 transition-colors" placeholder="Deskripsi jasa">
+                </div>
+                <div>
+                    <label class="block text-[10px] font-semibold text-slate-400 mb-1 uppercase">Detail Pekerjaan</label>
+                    <textarea rows="2" class="contract-detail w-full bg-slate-700 border border-slate-600 rounded px-2 py-1.5 text-xs text-white focus:outline-none focus:border-sky-500 transition-colors" placeholder="Detail pekerjaan..."></textarea>
+                </div>
+                <div>
+                    <label class="block text-[10px] font-semibold text-slate-400 mb-1 uppercase">Harga Kontrak (Rp)</label>
+                    <input type="number" class="contract-price w-full bg-slate-700 border border-slate-600 rounded px-2 py-1.5 text-xs text-white focus:outline-none focus:border-sky-500 transition-colors" placeholder="0">
+                </div>
+            `;
+            
+            container.appendChild(newContract);
+            
+            // Tambahkan event listener untuk input baru
+            newContract.querySelectorAll('.contract-service, .contract-detail, .contract-price').forEach(input => {
+                input.addEventListener('input', () => {
+                    updateContractsTable();
+                    calculateTotalPrice();
+                });
+            });
+            
+            // Update tombol hapus visibility
+            updateRemoveButtons();
+            updateContractsTable();
+            calculateTotalPrice();
+        }
+
+        // Fungsi Hapus Kontrak
+        function removeContract(button) {
+            button.closest('.contract-item').remove();
+            updateRemoveButtons();
+            updateContractsTable();
+            calculateTotalPrice();
+        }
+
+        // Update visibility tombol hapus (hanya tampil jika >1 kontrak)
+        function updateRemoveButtons() {
+            const contractItems = document.querySelectorAll('.contract-item');
+            contractItems.forEach(item => {
+                const removeBtn = item.querySelector('button[onclick*="removeContract"]');
+                if (removeBtn) {
+                    removeBtn.classList.toggle('hidden', contractItems.length <= 1);
+                }
+            });
+        }
+
+        // Update Tabel Kontrak di Preview
+        function updateContractsTable() {
+            const tbody = document.getElementById('contracts-table-body');
+            tbody.innerHTML = '';
+            
+            const contractItems = document.querySelectorAll('.contract-item');
+            const packageNum = document.getElementById('in-package').value || '3';
+            
+            let packageLabel = '';
+            let packageDesc = '';
+            switch(packageNum) {
+                case '1':
+                    packageLabel = 'Packages 1';
+                    packageDesc = 'Encrypted';
+                    break;
+                case '2':
+                    packageLabel = 'Packages 2';
+                    packageDesc = 'Limited Use';
+                    break;
+                case '3':
+                    packageLabel = 'Packages 3';
+                    packageDesc = 'Commercial Use';
+                    break;
+            }
+            
+            let rowNum = 1;
+            contractItems.forEach((item, index) => {
+                const service = item.querySelector('.contract-service').value || '-';
+                const detail = item.querySelector('.contract-detail').value || '-';
+                const price = parseFloat(item.querySelector('.contract-price').value) || 0;
+                const priceFormatted = formatRupiah(price);
+                
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td class="text-center">${rowNum}</td>
+                    <td>
+                        <span class="font-bold" style="color: #1a365d;">${service}</span><br>
+                        <span style="font-size: 8.5pt; color: #64748b;">${detail}</span>
+                    </td>
+                    <td class="text-center font-bold" style="color: #0284c7;">${packageLabel}<br><span style="font-size: 7.5pt; font-weight: normal; color: #64748b;">${packageDesc}</span></td>
+                    <td class="text-right font-bold">${priceFormatted}</td>
+                `;
+                tbody.appendChild(row);
+                rowNum++;
+            });
+        }
+
+        // Hitung Total Harga
+        function calculateTotalPrice() {
+            let total = 0;
+            document.querySelectorAll('.contract-price').forEach(input => {
+                total += parseFloat(input.value) || 0;
+            });
+            
+            const rpTotal = formatRupiah(total);
+            const rpHalf = formatRupiah(total / 2);
+            
+            // Update summary blocks
+            document.getElementById('out-price-sub').innerText = rpTotal;
+            document.getElementById('out-price-net').innerText = rpTotal;
+            document.getElementById('out-price-dp').innerText = rpHalf;
+            document.getElementById('out-price-final').innerText = rpHalf;
+        }
+
+        // Fungsi Update Package Display
+        function updatePackageDisplay(packageNum) {
+            // Sembunyikan semua package cards
+            const packageCards = document.querySelectorAll('.package-card');
+            packageCards.forEach(card => {
+                card.classList.remove('active');
+            });
+            
+            // Tampilkan package yang dipilih
+            const activeCard = document.querySelector(`.package-${packageNum}`);
+            if (activeCard) {
+                activeCard.classList.add('active');
+            }
+        }
+
         // Update Logika HTML
         function syncData() {
             // Ambil Input
@@ -536,13 +703,10 @@
             const norek = document.getElementById('in-norek').value || '-';
             const namarek = document.getElementById('in-namarek').value || '-';
             
-            const service = document.getElementById('in-service').value || '-';
-            const detail = document.getElementById('in-detail').value || '-';
             const days = document.getElementById('in-days').value || '-';
-            const price = parseFloat(document.getElementById('in-price').value) || 0;
+            const packageNum = document.getElementById('in-package').value || '3';
 
             // Generate Format Invoice Otomatis
-            // Ganti spasi dengan underscore dan jadikan huruf kapital
             const clientFormatted = client.toUpperCase().replace(/\s+/g, '_');
             const autoInvoiceId = `MSA-NPRO-${clientFormatted}-${invSeq}`;
 
@@ -565,29 +729,39 @@
             document.getElementById('out-norek-info').innerText = norek;
             document.getElementById('out-namarek-info').innerText = namarek;
 
-            // Map Proyek
-            document.getElementById('out-service').innerText = service;
-            document.getElementById('out-detail').innerText = detail;
+            // Map Waktu Pengerjaan
             document.getElementById('out-days').innerText = days;
-
-            // Kalkulasi Keuangan
-            const rpTotal = formatRupiah(price);
-            const rpHalf = formatRupiah(price / 2);
-
-            document.getElementById('out-price-total').innerText = rpTotal;
-            document.getElementById('out-price-sub').innerText = rpTotal;
-            document.getElementById('out-price-net').innerText = rpTotal;
-            document.getElementById('out-price-dp').innerText = rpHalf;
-            document.getElementById('out-price-final').innerText = rpHalf;
+            
+            // Update Package Display
+            updatePackageDisplay(packageNum);
+            
+            // Update Tabel Kontrak
+            updateContractsTable();
+            calculateTotalPrice();
         }
 
         // Pasang Event Listeners
-        const inputs = document.querySelectorAll('input, textarea');
+        const inputs = document.querySelectorAll('#in-worker, #in-client, #in-inv-seq, #in-bank, #in-norek, #in-namarek, #in-days');
         inputs.forEach(input => {
             input.addEventListener('input', syncData);
         });
 
+        // Event listener untuk dropdown package
+        const packageSelect = document.getElementById('in-package');
+        if (packageSelect) {
+            packageSelect.addEventListener('change', syncData);
+        }
+
+        // Event listener untuk kontrak items
+        document.getElementById('contracts-container').querySelectorAll('.contract-service, .contract-detail, .contract-price').forEach(input => {
+            input.addEventListener('input', () => {
+                updateContractsTable();
+                calculateTotalPrice();
+            });
+        });
+
         // Inisialisasi Pertama
+        updateRemoveButtons();
         syncData();
     </script>
 </body>
