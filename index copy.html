@@ -1,0 +1,590 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MSA & Invoice Generator - NK Projects .std</title>
+    <!-- Tailwind untuk UI Sidebar Form -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Import Font Poppins -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,400;0,600;0,700;0,800;1,400&display=swap" rel="stylesheet">
+    
+    <style>
+        /* ==========================================
+           PRINT STYLESHEET
+           ========================================== */
+        @media print {
+            body { background-color: #fafbfc; -webkit-print-color-adjust: exact; print-color-adjust: exact; margin: 0; }
+            .no-print { display: none !important; }
+            .preview-container { width: 100% !important; margin: 0 !important; padding: 0 !important; overflow: visible !important; }
+            .doc-wrapper { box-shadow: none !important; max-width: 100% !important; margin: 0 !important; padding: 0 !important; border: none !important; }
+            
+            @page {
+                size: A4;
+                margin: 25mm 20mm 25mm 20mm;
+            }
+        }
+
+        /* ==========================================
+           DOCUMENT STYLES (POPPINS & #1a365d ACCENT)
+           ========================================== */
+        .doc-wrapper {
+            font-family: 'Poppins', sans-serif;
+            color: #1e293b;
+            line-height: 1.6;
+            font-size: 10pt;
+            background-color: #fafbfc;
+            max-width: 210mm; /* A4 Width */
+            margin: 0 auto;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+        }
+
+        .doc-wrapper *, .doc-wrapper *::before, .doc-wrapper *::after { box-sizing: border-box; }
+        
+        .page-simulate {
+            padding: 25mm 20mm;
+            background-color: #fafbfc;
+            position: relative;
+            border-top: 4px solid #1a365d;
+            border-bottom: 4px solid #0284c7;
+            page-break-after: always;
+        }
+
+        /* Cover Page Layout */
+        .cover-page {
+            height: auto;
+            min-height: 250mm;
+            margin-top: -5mm;
+            position: relative;
+        }
+        
+        .cover-accent-line {
+            width: 80px; height: 4px; background: #0284c7; margin-bottom: 8mm;
+        }
+        
+        .cover-hero {
+            background-color: #1a365d; color: #ffffff;
+            margin: -25mm -20mm 15mm -20mm;
+            padding: 45mm 20mm 30mm 20mm;
+            border-bottom: 6px solid #0284c7;
+            position: relative;
+            -webkit-print-color-adjust: exact;
+            print-color-adjust: exact;
+        }
+        
+        .cover-hero::after {
+            content: ""; position: absolute; top: 0; right: 0; bottom: 0; left: 0;
+            background: linear-gradient(135deg, rgba(2, 132, 199, 0.15) 0%, transparent 70%);
+            pointer-events: none;
+        }
+
+        .cover-title { font-size: 28pt; font-weight: 800; line-height: 1.15; margin: 0 0 4mm 0; letter-spacing: -0.5px; text-transform: uppercase; color: #ffffff; }
+        .cover-subtitle { font-size: 12pt; font-weight: 600; color: #38bdf8; margin: 0; letter-spacing: 1px; text-transform: uppercase; }
+        
+        .cover-meta-container { margin-top: 20mm; display: table; width: 100%; }
+        .cover-meta-row { display: table-row; }
+        .cover-meta-cell { display: table-cell; width: 50%; padding-bottom: 6mm; vertical-align: top; }
+        .meta-label { font-size: 8.5pt; text-transform: uppercase; color: #64748b; letter-spacing: 1px; margin-bottom: 1.5mm; font-weight: 700; }
+        .meta-value { font-size: 11pt; font-weight: 600; color: #1e293b; }
+
+        /* Typography */
+        .doc-wrapper h1 { font-size: 16pt; color: #1a365d; margin-top: 0; margin-bottom: 10mm; font-weight: 800; border-bottom: 2px solid #1a365d; padding-bottom: 2mm; text-transform: uppercase; letter-spacing: 0.5px; page-break-after: avoid; }
+        .doc-wrapper h2 { font-size: 12pt; color: #1a365d; margin-top: 8mm; margin-bottom: 4mm; font-weight: 700; border-left: 4px solid #0284c7; padding-left: 3mm; text-transform: uppercase; letter-spacing: 0.3px; page-break-after: avoid; }
+        .doc-wrapper p { margin-top: 0; margin-bottom: 4mm; text-align: justify; color: #334155; font-size: 10pt; }
+        .doc-wrapper ol, .doc-wrapper ul { margin-top: 0; margin-bottom: 5mm; padding-left: 5mm; color: #334155; font-size: 10pt;}
+        .doc-wrapper li { margin-bottom: 2mm; text-align: justify; }
+
+        /* Tables */
+        .invoice-top-table { display: table; width: 100%; margin-bottom: 8mm; }
+        .invoice-top-row { display: table-row; }
+        .invoice-top-cell { display: table-cell; vertical-align: top; }
+        
+        table.premium-table { width: 100%; border-collapse: collapse; margin-top: 4mm; margin-bottom: 6mm; }
+        table.premium-table th { background-color: #1a365d; color: #ffffff; font-weight: 700; text-align: left; padding: 3.5mm 4mm; font-size: 9.5pt; border: 1px solid #1a365d; text-transform: uppercase; letter-spacing: 0.5px; -webkit-print-color-adjust: exact; print-color-adjust: exact;}
+        table.premium-table td { padding: 3.5mm 4mm; border: 1px solid #e2e8f0; font-size: 9.5pt; vertical-align: top; background-color: #ffffff; }
+        table.premium-table tr:nth-child(even) td { background-color: #f8fafc; -webkit-print-color-adjust: exact; print-color-adjust: exact;}
+        
+        .text-right { text-align: right !important; }
+        .text-center { text-align: center !important; }
+        .font-bold { font-weight: 700; }
+
+        /* Summary Area */
+        .summary-wrapper { display: table; width: 100%; margin-top: 4mm; }
+        .summary-row { display: table-row; }
+        .summary-left { display: table-cell; width: 35%; }
+        .summary-right { display: table-cell; width: 65%; }
+        
+        table.summary-block { width: 100%; border-collapse: collapse; }
+        table.summary-block td { padding: 2.5mm 4mm; border-bottom: 1px solid #e2e8f0; font-size: 9.5pt; }
+        table.summary-block tr.grand-total td { border-top: 2px solid #1a365d; border-bottom: 2px solid #1a365d; font-weight: 700; background-color: #f1f5f9; color: #1a365d; -webkit-print-color-adjust: exact; print-color-adjust: exact;}
+
+        /* Payment Box */
+        .payment-box { margin-top: 6mm; border: 1px solid #e2e8f0; border-radius: 4px; padding: 4mm 5mm; background-color: #f8fafc; page-break-inside: avoid; -webkit-print-color-adjust: exact; print-color-adjust: exact;}
+        .payment-box h3 { font-size: 9.5pt; font-weight: 700; color: #1a365d; margin-top: 0; margin-bottom: 2mm; text-transform: uppercase; letter-spacing: 0.5px; }
+        .payment-table { width: 100%; font-size: 9.5pt; color: #334155; }
+        .payment-table td { padding-bottom: 1mm; }
+
+        /* Package Cards */
+        .package-card { border: 1px solid #e2e8f0; background: #ffffff; padding: 5mm; margin-bottom: 4mm; border-radius: 4px; box-shadow: 0 1px 3px rgba(0,0,0,0.02); page-break-inside: avoid; }
+        .package-badge { display: inline-block; font-size: 8pt; font-weight: 700; background-color: #e0f2fe; color: #0369a1; padding: 1mm 2.5mm; border-radius: 9999px; text-transform: uppercase; margin-bottom: 2mm; -webkit-print-color-adjust: exact; print-color-adjust: exact;}
+        .package-name { font-size: 11pt; font-weight: 700; color: #1a365d; margin-bottom: 2mm; }
+
+        /* Warning Box */
+        .legal-warning-box { background-color: #fef2f2; border-left: 4px solid #ef4444; padding: 4mm 5mm; margin: 6mm 0; page-break-inside: avoid; -webkit-print-color-adjust: exact; print-color-adjust: exact;}
+        .legal-warning-box h3 { color: #991b1b; margin-top: 0; margin-bottom: 1.5mm; text-transform: uppercase; font-size: 10.5pt; font-weight: 700; letter-spacing: 0.5px; }
+        .legal-warning-box p { color: #7f1d1d; margin-bottom: 0; font-size: 9.5pt; }
+
+        /* Signatures Container */
+        .signatures-container { margin-top: 12mm; page-break-inside: avoid; }
+        .sigs-table { display: table; width: 100%; margin-top: 8mm; }
+        .sigs-row { display: table-row; }
+        .sigs-cell { display: table-cell; width: 50%; text-align: center; vertical-align: top; }
+        .sig-space { height: 22mm; }
+        .sig-line { width: 65%; margin: 0 auto; border-bottom: 1px solid #475569; margin-bottom: 2mm; }
+        .sig-name { font-weight: 700; color: #1a365d; }
+        .sig-title { font-size: 8.5pt; color: #64748b; }
+        
+        /* Scrollbar Sidebar */
+        .sidebar-scroll::-webkit-scrollbar { width: 6px; }
+        .sidebar-scroll::-webkit-scrollbar-thumb { background: #475569; border-radius: 4px; }
+    </style>
+</head>
+<body class="flex h-screen overflow-hidden bg-slate-300 font-[Poppins]">
+
+    <!-- SIDEBAR FORM (NO PRINT) -->
+    <div class="no-print w-[380px] bg-slate-900 text-white h-full flex flex-col shadow-2xl z-10 shrink-0">
+        <div class="p-5 border-b border-slate-800">
+            <h1 class="text-lg font-bold tracking-tight text-sky-400">NK Projects .std</h1>
+            <p class="text-xs text-slate-400 mt-1">MSA & Invoice Generator</p>
+        </div>
+        
+        <div class="flex-1 overflow-y-auto p-5 space-y-5 sidebar-scroll">
+            
+            <!-- SECTION: Data Umum -->
+            <div class="space-y-4">
+                <h2 class="text-[10px] font-bold text-sky-500 uppercase tracking-wider border-b border-slate-800 pb-1">Data Utama</h2>
+                <div>
+                    <label class="block text-[11px] font-semibold text-slate-400 mb-1 uppercase">Nama Worker</label>
+                    <input type="text" id="in-worker" value="NK Projects .std" class="w-full bg-slate-800 border border-slate-700 rounded px-3 py-2 text-sm text-white focus:outline-none focus:border-sky-500 transition-colors">
+                </div>
+                <div>
+                    <label class="block text-[11px] font-semibold text-slate-400 mb-1 uppercase">Nama Client</label>
+                    <input type="text" id="in-client" value="Megalodon Studio" placeholder="Nama Klien / Entitas" class="w-full bg-slate-800 border border-slate-700 rounded px-3 py-2 text-sm text-white focus:outline-none focus:border-sky-500 transition-colors">
+                </div>
+                <div>
+                    <label class="block text-[11px] font-semibold text-slate-400 mb-1 uppercase">No. Urut (Untuk Format Invoice)</label>
+                    <input type="text" id="in-inv-seq" value="001" placeholder="Contoh: 001, 002" class="w-full bg-slate-800 border border-slate-700 rounded px-3 py-2 text-sm text-white focus:outline-none focus:border-sky-500 transition-colors">
+                    <p class="text-[9px] text-slate-500 mt-1">Otomatis menjadi: MSA-NPRO-CLIENT-NO</p>
+                </div>
+            </div>
+
+            <!-- SECTION: Data Rekening -->
+            <div class="space-y-4">
+                <h2 class="text-[10px] font-bold text-sky-500 uppercase tracking-wider border-b border-slate-800 pb-1">Informasi Pembayaran</h2>
+                <div>
+                    <label class="block text-[11px] font-semibold text-slate-400 mb-1 uppercase">Nama Bank</label>
+                    <input type="text" id="in-bank" value="Bank Central Asia (BCA)" placeholder="Contoh: BCA / Mandiri / Jago" class="w-full bg-slate-800 border border-slate-700 rounded px-3 py-2 text-sm text-white focus:outline-none focus:border-sky-500 transition-colors">
+                </div>
+                <div>
+                    <label class="block text-[11px] font-semibold text-slate-400 mb-1 uppercase">No. Rekening</label>
+                    <input type="text" id="in-norek" value="1234567890" placeholder="Masukkan angka rekening" class="w-full bg-slate-800 border border-slate-700 rounded px-3 py-2 text-sm text-white focus:outline-none focus:border-sky-500 transition-colors">
+                </div>
+                <div>
+                    <label class="block text-[11px] font-semibold text-slate-400 mb-1 uppercase">Atas Nama (A/N)</label>
+                    <input type="text" id="in-namarek" value="NK Projects .std" placeholder="Nama Pemilik Rekening" class="w-full bg-slate-800 border border-slate-700 rounded px-3 py-2 text-sm text-white focus:outline-none focus:border-sky-500 transition-colors">
+                </div>
+            </div>
+
+            <!-- SECTION: Data Proyek -->
+            <div class="space-y-4">
+                <h2 class="text-[10px] font-bold text-sky-500 uppercase tracking-wider border-b border-slate-800 pb-1">Detail Proyek</h2>
+                <div>
+                    <label class="block text-[11px] font-semibold text-slate-400 mb-1 uppercase">Total Harga Kontrak (Rp)</label>
+                    <input type="number" id="in-price" value="5000000" class="w-full bg-slate-800 border border-slate-700 rounded px-3 py-2 text-sm text-white focus:outline-none focus:border-sky-500 transition-colors">
+                </div>
+                <div>
+                    <label class="block text-[11px] font-semibold text-slate-400 mb-1 uppercase">Jasa Yang Dikontrak</label>
+                    <input type="text" id="in-service" value="Jasa Pengembangan Aplikasi & Sistem" class="w-full bg-slate-800 border border-slate-700 rounded px-3 py-2 text-sm text-white focus:outline-none focus:border-sky-500 transition-colors">
+                </div>
+                <div>
+                    <label class="block text-[11px] font-semibold text-slate-400 mb-1 uppercase">Detail Pekerjaan</label>
+                    <textarea id="in-detail" rows="3" class="w-full bg-slate-800 border border-slate-700 rounded px-3 py-2 text-sm text-white focus:outline-none focus:border-sky-500 transition-colors">Mencakup pembuatan arsitektur modular, manajemen state/data store, serta perancangan antarmuka pengguna performa tinggi.</textarea>
+                </div>
+                <div>
+                    <label class="block text-[11px] font-semibold text-slate-400 mb-1 uppercase">Business Days (Waktu Kerja)</label>
+                    <input type="text" id="in-days" value="14 Hari Kerja" class="w-full bg-slate-800 border border-slate-700 rounded px-3 py-2 text-sm text-white focus:outline-none focus:border-sky-500 transition-colors">
+                </div>
+            </div>
+
+        </div>
+
+        <div class="p-5 border-t border-slate-800">
+            <button onclick="window.print()" class="w-full bg-sky-600 hover:bg-sky-500 text-white font-bold py-3 px-4 rounded shadow-lg transition-all text-sm">
+                Cetak PDF (Save as PDF)
+            </button>
+            <p class="text-[10px] text-slate-400 mt-2 text-center leading-tight">
+                *Matikan "Headers and footers" dan nyalakan "Background graphics" saat Print.
+            </p>
+        </div>
+    </div>
+
+    <!-- PREVIEW AREA (RIGHT) -->
+    <div class="flex-1 overflow-y-auto py-8 preview-container flex flex-col items-center gap-6">
+        
+        <!-- WRAPPER DOKUMEN -->
+        <div class="doc-wrapper">
+
+            <!-- ================= HALAMAN 1: COVER & INVOICE ================= -->
+            <div class="page-simulate">
+                <div class="cover-page">
+                    <div class="cover-hero">
+                        <div class="cover-title">MASTER SERVICE OF AGREEMENT</div>
+                        <div class="cover-subtitle">No. Invoice: <span id="out-invoice-cover">MSA-NPRO-...</span></div>
+                    </div>
+                    
+                    <div style="padding: 5mm 0;">
+                        <div class="cover-accent-line"></div>
+                        <p style="font-size: 11pt; color: #475569; max-width: 90%;">
+                            Dokumen Perjanjian Induk dan Ketentuan Layanan ini mengikat secara hukum antara Penyedia Jasa (Worker) dan Pengguna Jasa (Client). Cakupan mencakup kesepakatan finansial, manajemen hak cipta, kepemilikan aset digital, serta klausul legalitas berdasarkan perundang-undangan Republik Indonesia.
+                        </p>
+            
+                        <div class="cover-meta-container">
+                            <div class="cover-meta-row">
+                                <div class="cover-meta-cell">
+                                    <div class="meta-label">Pihak Pertama (Worker)</div>
+                                    <div class="meta-value" id="out-worker-meta">NK Projects .std</div>
+                                    <div style="font-size: 9pt; color: #64748b; margin-top: 0.5mm;">Professional Developer & Studio</div>
+                                </div>
+                                <div class="cover-meta-cell">
+                                    <div class="meta-label">Pihak Kedua (Client)</div>
+                                    <div class="meta-value" id="out-client-meta">Klien Pengguna Jasa</div>
+                                    <div style="font-size: 9pt; color: #64748b; margin-top: 0.5mm;">Entitas Pemesan Sistem</div>
+                                </div>
+                            </div>
+                            <div class="cover-meta-row">
+                                <div class="cover-meta-cell">
+                                    <div class="meta-label">Tanggal Efektif Kontrak</div>
+                                    <div class="meta-value" id="out-date-cover">Tanggal Saat Ini</div>
+                                </div>
+                                <div class="cover-meta-cell">
+                                    <div class="meta-label">Klasifikasi Dokumen</div>
+                                    <div class="meta-value" style="color: #0284c7;">Confidential / Perjanjian Hukum</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div style="margin-top: 15mm;">
+                    <h1>FAKTUR TAGIHAN / INVOICE</h1>
+                    
+                    <div class="invoice-top-table">
+                        <div class="invoice-top-row">
+                            <div class="invoice-top-cell">
+                                <div style="font-size: 14pt; font-weight: 800; color: #1a365d; letter-spacing: -0.2px; text-transform: uppercase;" id="out-worker-header">NK PROJECTS .STD</div>
+                                <div style="font-size: 8.5pt; color: #64748b; margin-top: 1mm; line-height: 1.4;">
+                                    Development & System Engineering<br>
+                                    Hubungan Hukum & Kontrak Digital | Nomor: <span id="out-invoice-header">MSA-NPRO-...</span>
+                                </div>
+                            </div>
+                            <div class="invoice-top-cell text-right" style="font-size: 9.5pt; color: #334155;">
+                                <span class="font-bold" style="color: #1a365d;">Diterbitkan Untuk:</span><br>
+                                <span id="out-client-invoice">Klien Pengguna Jasa</span><br>
+                                Tanggal Terbit: <span id="out-date-invoice">Tanggal Saat Ini</span><br>
+                                Status: <span style="font-weight: 600; color: #b45309;">Menunggu Pembayaran (DP)</span>
+                            </div>
+                        </div>
+                    </div>
+            
+                    <h2>1. Rincian Pengembangan Sistem</h2>
+                    <table class="premium-table">
+                        <thead>
+                            <tr>
+                                <th style="width: 5%;" class="text-center">No</th>
+                                <th style="width: 55%;">Deskripsi Pekerjaan Pemrograman</th>
+                                <th style="width: 15%;" class="text-center">Paket Aset</th>
+                                <th style="width: 25%;" class="text-right">Nilai Kontrak</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td class="text-center">1</td>
+                                <td>
+                                    <span class="font-bold" style="color: #1a365d;" id="out-service">Jasa Pengembangan</span><br>
+                                    <span style="font-size: 8.5pt; color: #64748b;" id="out-detail">
+                                        Detail pekerjaan.
+                                    </span>
+                                    <div style="font-size: 8.5pt; color: #0284c7; font-weight: 600; margin-top: 2mm;">
+                                        Waktu Pengerjaan: <span id="out-days">14 Hari Kerja</span>
+                                    </div>
+                                </td>
+                                <td class="text-center font-bold" style="color: #0284c7;">Packages 3<br><span style="font-size: 7.5pt; font-weight: normal; color: #64748b;">Commercial Use</span></td>
+                                <td class="text-right font-bold" id="out-price-total">[Nilai Kontrak]</td>
+                            </tr>
+                        </tbody>
+                    </table>
+            
+                    <h2>2. Struktur Pembayaran Termin (Milestone)</h2>
+                    <p style="font-size: 9.5pt;">Mekanisme pembiayaan wajib diselesaikan berdasarkan ketentuan pembagian 50% di awal dan 50% di akhir proyek:</p>
+                    
+                    <table class="premium-table">
+                        <thead>
+                            <tr>
+                                <th style="width: 30%;">Tahapan Pembayaran</th>
+                                <th style="width: 20%;" class="text-center">Persentase</th>
+                                <th style="width: 50%;">Kondisi Penyerahan & Pekerjaan</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td class="font-bold">Termin I (Down Payment)</td>
+                                <td class="text-center font-bold" style="color: #0284c7;">50%</td>
+                                <td>Wajib diselesaikan di awal sebagai syarat mutlak dimulainya proses analisis kebutuhan dan penulisan baris kode pertama.</td>
+                            </tr>
+                            <tr>
+                                <td class="font-bold">Termin II (Final Payment)</td>
+                                <td class="text-center font-bold" style="color: #0284c7;">50%</td>
+                                <td>Wajib dilunasi setelah seluruh sistem selesai dikembangkan, diuji bersama, dan siap dipindahtangankan.</td>
+                            </tr>
+                        </tbody>
+                    </table>
+            
+                    <div class="summary-wrapper">
+                        <div class="summary-row">
+                            <!-- Kolom Kosong di Kiri -->
+                            <div class="summary-left"></div>
+                            
+                            <!-- Kalkulasi Harga di Kanan -->
+                            <div class="summary-right">
+                                <table class="summary-block">
+                                    <tr>
+                                        <td>Subtotal Kontrak</td>
+                                        <td class="text-right" id="out-price-sub">[Nilai Kontrak]</td>
+                                    </tr>
+                                    <tr>
+                                        <td class="font-bold">Termin I: Pembayaran Awal (50%)</td>
+                                        <td class="text-right font-bold" style="color: #0284c7;" id="out-price-dp">[50% Kontrak]</td>
+                                    </tr>
+                                    <tr>
+                                        <td class="font-bold">Termin II: Pelunasan Akhir (50%)</td>
+                                        <td class="text-right font-bold" style="color: #0284c7;" id="out-price-final">[50% Kontrak]</td>
+                                    </tr>
+                                    <tr class="grand-total">
+                                        <td>Total Nilai Kesepakatan (Net)</td>
+                                        <td class="text-right" id="out-price-net">[Nilai Kontrak]</td>
+                                    </tr>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- KOTAK INFORMASI PEMBAYARAN -->
+                    <div class="payment-box">
+                        <h3>Informasi Rekening Pembayaran</h3>
+                        <table class="payment-table">
+                            <tr>
+                                <td style="width: 25%; font-weight: 600;">Bank Tujuan</td>
+                                <td style="width: 5%;">:</td>
+                                <td style="width: 70%;" id="out-bank-info">Bank Central Asia (BCA)</td>
+                            </tr>
+                            <tr>
+                                <td style="font-weight: 600;">Nomor Rekening</td>
+                                <td>:</td>
+                                <td style="font-weight: 700; color: #1a365d; font-size: 10.5pt;" id="out-norek-info">1234567890</td>
+                            </tr>
+                            <tr>
+                                <td style="font-weight: 600;">Atas Nama (A/N)</td>
+                                <td>:</td>
+                                <td id="out-namarek-info">NK Projects .std</td>
+                            </tr>
+                        </table>
+                    </div>
+            
+                    <div style="margin-top: 6mm; font-size: 8.5pt; color: #64748b; border-top: 1px dashed #cbd5e1; padding-top: 3mm; line-height: 1.4;">
+                        <span class="font-bold" style="color: #475569;">Ketentuan Keabsahan Finansial:</span> Pembayaran hanya diakui sah jika ditransfer ke rekening di atas. Kegagalan pembayaran Termin II memberikan hak penuh kepada Worker untuk membekukan lisensi sistem operasional.
+                    </div>
+                </div>
+            </div>
+
+            <!-- ================= HALAMAN 2: TERM OF SERVICE ================= -->
+            <div class="page-simulate">
+                <h1>TERM OF SERVICE (KETENTUAN LAYANAN)</h1>
+        
+                <p>
+                    Syarat dan ketentuan ini mengatur tata cara kerja, batasan hukum, serta perlindungan hak cipta antara <strong id="out-worker-tos">Worker (NK Projects .std)</strong> dan <strong>Klien</strong>. Penandatanganan dokumen ini menandakan persetujuan penuh terhadap seluruh pasal di bawah ini.
+                </p>
+        
+                <h2>Pasal 1: Kebijakan Klasifikasi Hak Aset & Hak Milik Intelektual</h2>
+                <p>
+                    Hak kekayaan intelektual atas baris kode, arsitektur data, dan aset sistem dikelompokkan menjadi 3 (tiga) skema paket operasional yang mengikat:
+                </p>
+        
+                <div class="package-card">
+                    <div class="package-badge">Paket Terkunci</div>
+                    <div class="package-name">Packages 1 : Encrypted, Licensed</div>
+                    <p style="margin-bottom: 0; font-size: 9.5pt;">
+                        Seluruh kode sumber (source code) bersifat rahasia dan dienkripsi penuh oleh Worker. Klien hanya menerima hak guna pakai (runtime license). Klien dilarang keras membuka enkripsi, merekayasa balik (reverse engineering), menyalin, atau mendistribusikan kode tanpa persetujuan tertulis. Hak kepemilikan aset mutlak milik Worker.
+                    </p>
+                </div>
+        
+                <div class="package-card">
+                    <div class="package-badge">Paket Terbatas</div>
+                    <div class="package-name">Packages 2 : Open Source, Licensed</div>
+                    <p style="margin-bottom: 0; font-size: 9.5pt;">
+                        Klien memperoleh akses penuh terhadap kode sumber dalam keadaan terbuka untuk kebutuhan modifikasi internal. Namun, aset dan kode tersebut <strong>TIDAK BISA/TIDAK BOLEH diperjualbelikan kembali</strong> kepada pihak ketiga. Hak kepemilikan aset dasar dan hak cipta tetap berada mutlak di tangan Pembuat (Worker).
+                    </p>
+                </div>
+        
+                <div class="package-card">
+                    <div class="package-badge">Paket Komersial Penuh</div>
+                    <div class="package-name">Packages 3 : Open Source, Unlicensed, Commercial Use</div>
+                    <p style="margin-bottom: 0; font-size: 9.5pt;">
+                        Klien mendapatkan akses penuh terhadap seluruh baris kode tanpa enkripsi serta dibebaskan dari restriksi lisensi operasional. Klien memegang hak penuh untuk melakukan komersialisasi, penggandaan, serta <strong>bisa diperjualbelikan kembali secara bebas kepada pihak lain</strong>.
+                    </p>
+                </div>
+        
+                <h2>Pasal 2: Ketentuan Pembayaran Pembagian 50/50</h2>
+                <ol>
+                    <li><strong>Pembayaran Awal (50%):</strong> Klien wajib menyetorkan dana sebesar 50% dari nilai kontrak sebelum pekerjaan dimulai. Dana ini berfungsi sebagai tanda komitmen.</li>
+                    <li><strong>Pembayaran Akhir (50%):</strong> Pelunasan sisa 50% wajib dibayarkan Klien setelah peninjauan fungsionalitas sistem dinyatakan selesai dan sebelum seluruh source code diserahkan.</li>
+                </ol>
+        
+                <h2>Pasal 3: Pelanggaran Hak Cipta dan Sanksi Hukum Positif Indonesia</h2>
+                <p>
+                    Tindakan penyalahgunaan aset, pendistribusian tanpa hak pada skema Paket 1 dan Paket 2, serta klaim sepihak atas ciptaan milik Worker merupakan bentuk pelanggaran hukum serius dan akan diproses melalui jalur pidana maupun perdata.
+                </p>
+        
+                <div class="legal-warning-box">
+                    <h3>PERINGATAN ATAS PELANGGARAN HAK CIPTA (UU NO. 28 TAHUN 2014)</h3>
+                    <p>
+                        Berdasarkan <strong>Undang-Undang Republik Indonesia Nomor 28 Tahun 2014 tentang Hak Cipta</strong>, program komputer dan database adalah ciptaan yang dilindungi (Pasal 40 ayat 1). Pelanggaran terhadap hak ekonomi pencipta dikenakan sanksi pidana penjara paling lama 10 tahun dan/atau denda maksimal Rp4.000.000.000,00.
+                    </p>
+                </div>
+                
+                <p>
+                    Worker akan menuntut ganti rugi materil melalui Pengadilan Niaga serta melakukan pelaporan pidana ke Direktorat Tindak Pidana Siber Bareskrim Polri jika ditemukan kebocoran aset kode pada paket berlisensi terbatas.
+                </p>
+        
+                <h2>Pasal 4: Hukum yang Berlaku & Penyelesaian Perselisihan</h2>
+                <ol>
+                    <li>Perjanjian ini diatur, ditafsirkan, dan tunduk sepenuhnya pada hukum Negara Kesatuan Republik Indonesia.</li>
+                    <li>Segala sengketa yang timbul akibat pelaksanaan kontrak ini akan diselesaikan secara musyawarah untuk mufakat dalam waktu maksimal 30 hari.</li>
+                    <li>Jika musyawarah gagal, Kedua Belah Pihak sepakat memilih domisili hukum yang tetap di Pengadilan Negeri wilayah domisili Worker.</li>
+                </ol>
+        
+                <div class="signatures-container">
+                    <h2>Persetujuan Para Pihak</h2>
+                    <p style="font-size: 9pt; color: #475569;">
+                        Kedua belah pihak dengan ini menandatangani Master Service of Agreement ini sebagai bukti kesepakatan mutlak tanpa paksaan dari pihak manapun.
+                    </p>
+                    
+                    <div class="sigs-table">
+                        <div class="sigs-row">
+                            <div class="sigs-cell">
+                                <div class="sig-title font-bold" style="color:#1a365d; margin-bottom: 4mm;">PIHAK PERTAMA<br>(Penyedia Jasa / Worker)</div>
+                                <div class="sig-space"></div>
+                                <div class="sig-line"></div>
+                                <div class="sig-name" id="out-worker-sign">NK Projects .std</div>
+                                <div class="sig-title">Professional Developer</div>
+                            </div>
+                            <div class="sigs-cell">
+                                <div class="sig-title font-bold" style="color:#1a365d; margin-bottom: 4mm;">PIHAK KEDUA<br>(Pengguna Jasa / Klien)</div>
+                                <div class="sig-space"></div>
+                                <div class="sig-line"></div>
+                                <div class="sig-name" id="out-client-sign">......................................................</div>
+                                <div class="sig-title">Klien / Perwakilan Sah</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div> <!-- END DOC WRAPPER -->
+    </div>
+
+    <script>
+        // Set Data Tanggal Secara Otomatis
+        const today = new Date();
+        const options = { day: 'numeric', month: 'long', year: 'numeric' };
+        const dateString = today.toLocaleDateString('id-ID', options);
+        document.getElementById('out-date-cover').innerText = dateString;
+        document.getElementById('out-date-invoice').innerText = dateString;
+
+        // Fungsi Format Rupiah
+        const formatRupiah = (angka) => {
+            return new Intl.NumberFormat('id-ID', {
+                style: 'currency',
+                currency: 'IDR',
+                minimumFractionDigits: 0
+            }).format(angka);
+        };
+
+        // Update Logika HTML
+        function syncData() {
+            // Ambil Input
+            const worker = document.getElementById('in-worker').value || 'NK Projects .std';
+            const client = document.getElementById('in-client').value || 'CLIENT KOSONG';
+            const invSeq = document.getElementById('in-inv-seq').value || '001';
+            
+            const bank = document.getElementById('in-bank').value || '-';
+            const norek = document.getElementById('in-norek').value || '-';
+            const namarek = document.getElementById('in-namarek').value || '-';
+            
+            const service = document.getElementById('in-service').value || '-';
+            const detail = document.getElementById('in-detail').value || '-';
+            const days = document.getElementById('in-days').value || '-';
+            const price = parseFloat(document.getElementById('in-price').value) || 0;
+
+            // Generate Format Invoice Otomatis
+            // Ganti spasi dengan underscore dan jadikan huruf kapital
+            const clientFormatted = client.toUpperCase().replace(/\s+/g, '_');
+            const autoInvoiceId = `MSA-NPRO-${clientFormatted}-${invSeq}`;
+
+            // Map Teks: Worker & Client
+            document.getElementById('out-worker-meta').innerText = worker;
+            document.getElementById('out-worker-header').innerText = worker;
+            document.getElementById('out-worker-tos').innerText = `Worker (${worker})`;
+            document.getElementById('out-worker-sign').innerText = worker;
+            
+            document.getElementById('out-client-meta').innerText = client;
+            document.getElementById('out-client-invoice').innerText = client;
+            document.getElementById('out-client-sign').innerText = client;
+            
+            // Map Invoice
+            document.getElementById('out-invoice-cover').innerText = autoInvoiceId;
+            document.getElementById('out-invoice-header').innerText = autoInvoiceId;
+            
+            // Map Informasi Rekening
+            document.getElementById('out-bank-info').innerText = bank;
+            document.getElementById('out-norek-info').innerText = norek;
+            document.getElementById('out-namarek-info').innerText = namarek;
+
+            // Map Proyek
+            document.getElementById('out-service').innerText = service;
+            document.getElementById('out-detail').innerText = detail;
+            document.getElementById('out-days').innerText = days;
+
+            // Kalkulasi Keuangan
+            const rpTotal = formatRupiah(price);
+            const rpHalf = formatRupiah(price / 2);
+
+            document.getElementById('out-price-total').innerText = rpTotal;
+            document.getElementById('out-price-sub').innerText = rpTotal;
+            document.getElementById('out-price-net').innerText = rpTotal;
+            document.getElementById('out-price-dp').innerText = rpHalf;
+            document.getElementById('out-price-final').innerText = rpHalf;
+        }
+
+        // Pasang Event Listeners
+        const inputs = document.querySelectorAll('input, textarea');
+        inputs.forEach(input => {
+            input.addEventListener('input', syncData);
+        });
+
+        // Inisialisasi Pertama
+        syncData();
+    </script>
+</body>
+</html>
