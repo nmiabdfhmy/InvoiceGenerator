@@ -1,0 +1,543 @@
+/* ==========================================================
+   Anonaka Studio - MSA & Invoice Generator
+   Stylesheet utama (dipisah dari index.html)
+   ========================================================== */
+
+/* ==========================================
+   DESIGN TOKENS
+   ========================================== */
+:root {
+    --navy-900: #0b1f3a;
+    --navy-800: #12294d;
+    --navy-700: #1a365d;
+    --sky-600: #0284c7;
+    --sky-500: #0ea5e9;
+    --sky-400: #38bdf8;
+    --sky-50:  #f0f9ff;
+    --ink-900: #0f172a;
+    --ink-700: #334155;
+    --ink-500: #64748b;
+    --ink-300: #cbd5e1;
+    --line:    #e2e8f0;
+    --paper:   #ffffff;
+    --soft:    #f8fafc;
+}
+
+/* ==========================================
+   PRINT STYLESHEET
+   - Cover selalu 1 halaman penuh tanpa margin (lihat bagian COVER)
+   - Setiap Bab selalu dimulai di halaman baru
+   - Header & footer bab diulang otomatis di setiap halaman lanjutan
+   ========================================== */
+/* Halaman default (dipakai cover): tanpa margin, tanpa nomor halaman */
+@page {
+    size: A4;
+    margin: 0;
+}
+/* Halaman bab (Bahasa Indonesia) */
+@page chapter-id {
+    size: A4;
+    margin: 0 0 9mm 0;
+    @bottom-center {
+        content: "Halaman " counter(page) " dari " counter(pages);
+        font-family: 'Poppins', sans-serif; font-size: 7pt; color: #94a3b8; letter-spacing: 0.5px;
+        vertical-align: top; padding-top: 1mm;
+    }
+}
+/* Halaman bab (English) */
+@page chapter-en {
+    size: A4;
+    margin: 0 0 9mm 0;
+    @bottom-center {
+        content: "Page " counter(page) " of " counter(pages);
+        font-family: 'Poppins', sans-serif; font-size: 7pt; color: #94a3b8; letter-spacing: 0.5px;
+        vertical-align: top; padding-top: 1mm;
+    }
+}
+
+@media print {
+    html, body { height: auto !important; overflow: visible !important; }
+    body { display: block !important; background-color: #ffffff; background-image:url("https://drive.google.com/uc?export=view&id=1lqzOLzMS8VEUh-cWCxexgzrtVCW2xApb"); -webkit-print-color-adjust: exact; print-color-adjust: exact; margin: 0; }
+    .no-print { display: none !important; }
+    .preview-container { display: block !important; width: 100% !important; margin: 0 !important; padding: 0 !important; overflow: visible !important; background: none !important; }
+    .doc-wrapper { display: block !important; box-shadow: none !important; max-width: 100% !important; margin: 0 !important; padding: 0 !important; border: none !important; }
+    .page-simulate { box-shadow: none !important; border-radius: 0 !important; margin: 0 !important; overflow: visible !important; background: transparent !important; min-height: 0 !important; }
+
+    .page-simulate.cover-sheet {
+        height: 296mm !important; min-height: 0 !important; overflow: hidden !important; break-after: page;
+        background: linear-gradient(160deg, var(--navy-900) 0%, var(--navy-800) 45%, var(--navy-700) 75%, #0c4a6e 100%) !important;
+    }
+    .chapter { break-before: page; page-break-before: always; }
+    .chapter { page: chapter-id; }
+    html[lang="en"] .chapter { page: chapter-en; }
+    .print-frame { height: auto !important; }
+}
+
+/* ==========================================
+   PREVIEW BACKGROUND (SCREEN ONLY)
+   ========================================== */
+.preview-container {
+    background-color: #cbd5e1;
+    background-image: radial-gradient(rgba(15, 23, 42, 0.08) 1px, transparent 1px);
+    background-size: 18px 18px;
+}
+
+/* ==========================================
+   DOCUMENT STYLES
+   ========================================== */
+.doc-wrapper {
+    font-family: 'Poppins', sans-serif;
+    color: var(--ink-900);
+    line-height: 1.6;
+    font-size: 10pt;
+    max-width: 210mm; /* A4 Width */
+    width: 100%;
+    margin: 0 auto;
+    display: flex;
+    flex-direction: column;
+    gap: 10mm;
+}
+
+.doc-wrapper *, .doc-wrapper *::before, .doc-wrapper *::after { box-sizing: border-box; }
+
+/* Tailwind preflight menghapus penomoran list — kembalikan untuk dokumen */
+.doc-wrapper ol { list-style: decimal; }
+.doc-wrapper ul { list-style: disc; }
+.doc-wrapper ol.timeline, .doc-wrapper ul.cond-list { list-style: none; }
+
+.page-simulate {
+    background-color: var(--paper);
+    position: relative;
+    box-shadow: 0 20px 45px -15px rgba(15, 23, 42, 0.35), 0 2px 6px rgba(15, 23, 42, 0.06);
+    border-radius: 3px;
+    overflow: hidden;
+    min-height: 297mm;
+}
+
+/* ---------- Chapter Sheet (Running Header / Footer) ---------- */
+.chapter { padding: 0 20mm; }
+.print-frame { width: 100%; border-collapse: collapse; height: 297mm; }
+.print-frame > thead > tr > td,
+.print-frame > tfoot > tr > td,
+.print-frame > tbody > tr > td { padding: 0; vertical-align: top; border: none; background: transparent; }
+.print-frame > tbody > tr > td.chapter-body { padding: 4mm 0 0 0; }
+.print-frame > tfoot > tr > td { vertical-align: bottom; padding-top: 6mm; }
+
+.running-header {
+    display: flex; justify-content: space-between; align-items: center; gap: 6mm;
+    padding: 11mm 0 3.5mm 0; margin-bottom: 4mm;
+    border-bottom: 1px solid var(--line); position: relative;
+}
+.running-header::after {
+    content: ""; position: absolute; left: 0; bottom: -1px; width: 22mm; height: 2px;
+    background: linear-gradient(90deg, var(--navy-700), var(--sky-600));
+}
+.rh-left { display: flex; align-items: center; gap: 2.5mm; }
+.rh-logo { width: 8.5mm; height: 8.5mm; object-fit: contain; flex-shrink: 0; display: block; }
+.rh-name { font-size: 8.5pt; font-weight: 700; color: var(--navy-700); line-height: 1.2; }
+.rh-doc { font-size: 6.5pt; color: var(--ink-500); text-transform: uppercase; letter-spacing: 1.2px; line-height: 1.3; }
+.rh-right { text-align: right; }
+.rh-chapter { font-size: 7pt; font-weight: 700; color: var(--sky-600); text-transform: uppercase; letter-spacing: 1.2px; line-height: 1.3; }
+.rh-inv { font-size: 7pt; color: var(--ink-500); letter-spacing: 0.3px; line-height: 1.3; }
+
+.running-footer {
+    display: flex; justify-content: space-between; gap: 6mm;
+    font-size: 7pt; color: #94a3b8; letter-spacing: 0.4px;
+    border-top: 1px solid var(--line); padding: 2.5mm 0 0 0; margin: 0;
+}
+
+/* Eyebrow / Bab Label */
+.chapter-eyebrow {
+    display: inline-flex; align-items: center; gap: 2mm;
+    font-size: 7.5pt; font-weight: 700; letter-spacing: 2px; text-transform: uppercase;
+    color: var(--sky-600); margin-bottom: 2mm;
+}
+.chapter-eyebrow::before { content: ""; width: 8mm; height: 2px; background: var(--sky-600); display: inline-block; }
+
+/* ==========================================
+   COVER (HALAMAN 1) - satu halaman A4 penuh
+   ========================================== */
+.cover-sheet {
+    position: relative; overflow: hidden; height: 297mm;
+    display: flex; flex-direction: column;
+    padding: 20mm 20mm 18mm 20mm; color: #ffffff;
+    background: linear-gradient(160deg, var(--navy-900) 0%, var(--navy-800) 45%, var(--navy-700) 75%, #0c4a6e 100%);
+    -webkit-print-color-adjust: exact; print-color-adjust: exact;
+}
+.cover-sheet::before {
+    content: ""; position: absolute; width: 190mm; height: 190mm; right: -70mm; top: -80mm; border-radius: 50%;
+    background: radial-gradient(circle, rgba(56, 189, 248, 0.30) 0%, rgba(56, 189, 248, 0) 70%);
+}
+.cover-sheet::after {
+    content: ""; position: absolute; left: 0; top: 0; bottom: 0; width: 3mm;
+    background: linear-gradient(180deg, var(--sky-400), var(--sky-600) 60%, var(--navy-700));
+}
+.cv-grid {
+    position: absolute; inset: 0; pointer-events: none;
+    background-image: linear-gradient(rgba(255,255,255,0.03) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.03) 1px, transparent 1px);
+    background-size: 10mm 10mm;
+}
+.cv-watermark {
+    position: absolute; width: 120mm; height: 120mm; right: -22mm; bottom: -18mm;
+    opacity: 0.07; pointer-events: none; object-fit: contain;
+}
+
+.cv-brand { position: relative; display: flex; align-items: center; justify-content: space-between; }
+.cv-brand-mark { display: flex; align-items: center; gap: 3.5mm; }
+.cv-logo { width: 14mm; height: 14mm; object-fit: contain; display: block; }
+.cv-brand-name { font-weight: 700; font-size: 12.5pt; letter-spacing: 0.2px; line-height: 1.2; }
+.cv-brand-tag { font-size: 7pt; color: #93c5fd; letter-spacing: 1.6px; text-transform: uppercase; }
+.cv-pill {
+    font-size: 6.8pt; font-weight: 700; letter-spacing: 1.6px; text-transform: uppercase;
+    border: 1px solid rgba(255,255,255,0.35); color: #e0f2fe; padding: 1.2mm 3.2mm; border-radius: 999px;
+}
+
+.cv-title-block { position: relative; margin-top: auto; margin-bottom: auto; max-width: 155mm; }
+.cv-kicker {
+    display: flex; align-items: center; gap: 3mm;
+    font-size: 7.8pt; font-weight: 600; letter-spacing: 2.6px; text-transform: uppercase; color: var(--sky-400); margin-bottom: 5mm;
+}
+.cv-kicker::before { content: ""; width: 12mm; height: 2px; background: var(--sky-400); flex-shrink: 0; }
+.cv-title { font-size: 44pt; font-weight: 800; line-height: 1; letter-spacing: -1.4px; text-transform: uppercase; color: #ffffff; margin-bottom: 7mm; }
+.cv-title span { color: var(--sky-400); }
+.doc-wrapper .cv-lead { font-size: 10pt; line-height: 1.7; color: #cbd5e1; margin: 0 0 8mm 0; max-width: 130mm; text-align: left; }
+.cv-docno {
+    display: inline-flex; align-items: center; gap: 3mm;
+    font-size: 9pt; font-weight: 600; color: #ffffff; letter-spacing: 0.5px;
+    background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.18);
+    padding: 2mm 4.5mm; border-radius: 999px;
+}
+.cv-docno .lbl { color: #93c5fd; text-transform: uppercase; font-size: 6.8pt; letter-spacing: 1.6px; }
+
+.cv-meta {
+    position: relative; display: grid; grid-template-columns: 1.2fr 1.2fr 1fr; gap: 6mm;
+    border-top: 1px solid rgba(255,255,255,0.18); padding-top: 6mm;
+}
+.cv-meta-label { font-size: 6.8pt; font-weight: 700; text-transform: uppercase; letter-spacing: 1.6px; color: #93c5fd; margin-bottom: 1.5mm; }
+.cv-meta-value { font-size: 11pt; font-weight: 700; color: #ffffff; line-height: 1.3; }
+
+/* ==========================================
+   HALAMAN 2 - INFORMASI & PENDAHULUAN
+   ========================================== */
+.info-label { font-size: 6.8pt; font-weight: 700; text-transform: uppercase; letter-spacing: 1.4px; color: var(--ink-500); margin-bottom: 1.5mm; }
+
+.info-parties { display: grid; grid-template-columns: 1fr 1fr; gap: 4mm; margin-bottom: 2mm; }
+.info-party {
+    border: 1px solid var(--line); border-left: 3px solid var(--sky-600); border-radius: 3mm;
+    padding: 4mm 5mm; background: var(--soft);
+    -webkit-print-color-adjust: exact; print-color-adjust: exact;
+}
+.info-party-name { font-size: 13pt; font-weight: 800; color: var(--navy-700); line-height: 1.25; }
+.info-party-role { font-size: 8pt; color: var(--ink-500); margin-top: 0.8mm; }
+
+.info-facts {
+    display: grid; grid-template-columns: repeat(3, 1fr);
+    border: 1px solid var(--line); border-radius: 3mm; overflow: hidden; margin-bottom: 2mm;
+}
+.info-fact { padding: 3.5mm 4.5mm; border-right: 1px solid var(--line); border-bottom: 1px solid var(--line); }
+.info-fact:nth-child(3n) { border-right: none; }
+.info-fact:nth-last-child(-n+3) { border-bottom: none; }
+.info-fact-val { font-size: 9.5pt; font-weight: 700; color: var(--ink-900); line-height: 1.35; word-break: break-word; }
+.info-fact-val.accent { color: var(--sky-600); }
+
+.info-toc { border-top: 1px solid var(--line); }
+.info-toc-row { display: flex; align-items: baseline; gap: 5mm; padding: 3mm 0; border-bottom: 1px dashed var(--ink-300); }
+.info-toc-row:last-child { border-bottom: 1px solid var(--line); }
+.info-toc-num { font-size: 15pt; font-weight: 800; color: var(--sky-600); line-height: 1; min-width: 10mm; letter-spacing: -0.5px; }
+.info-toc-text .t { font-size: 10pt; font-weight: 700; color: var(--navy-700); line-height: 1.3; }
+.info-toc-text .d { font-size: 8pt; color: var(--ink-500); line-height: 1.4; }
+
+/* ---------- Typography ---------- */
+.doc-wrapper h1 {
+    font-size: 17pt; color: var(--navy-700); margin-top: 0; margin-bottom: 8mm; font-weight: 800;
+    padding-bottom: 3mm; text-transform: uppercase; letter-spacing: -0.2px; page-break-after: avoid;
+    border-bottom: 1px solid var(--line); position: relative;
+}
+.doc-wrapper h1::after {
+    content: ""; position: absolute; left: 0; bottom: -1px; width: 22mm; height: 3px;
+    background: linear-gradient(90deg, var(--navy-700), var(--sky-600));
+}
+.doc-wrapper h2 {
+    display: flex; align-items: center; gap: 3mm;
+    font-size: 11.5pt; color: var(--navy-700); margin-top: 9mm; margin-bottom: 4mm; font-weight: 700;
+    text-transform: uppercase; letter-spacing: 0.3px; page-break-after: avoid;
+}
+.doc-wrapper h2::before {
+    content: ""; width: 1.6mm; height: 5mm; border-radius: 1mm;
+    background: linear-gradient(180deg, var(--sky-500), var(--navy-700)); flex-shrink: 0;
+}
+.doc-wrapper p { margin-top: 0; margin-bottom: 4mm; text-align: justify; color: var(--ink-700); font-size: 10pt; }
+.doc-wrapper ol, .doc-wrapper ul { margin-top: 0; margin-bottom: 5mm; padding-left: 5mm; color: var(--ink-700); font-size: 10pt; }
+.doc-wrapper li { margin-bottom: 2mm; text-align: justify; }
+.doc-wrapper strong { color: var(--ink-900); }
+
+/* ---------- Invoice Header ---------- */
+.invoice-top {
+    display: grid; grid-template-columns: 1.2fr 1fr; gap: 6mm; margin-bottom: 8mm; align-items: stretch;
+}
+.invoice-from-name { font-size: 14pt; font-weight: 800; color: var(--navy-700); letter-spacing: -0.2px; text-transform: uppercase; }
+.invoice-from-sub { font-size: 8.5pt; color: var(--ink-500); margin-top: 1mm; line-height: 1.5; }
+.invoice-to {
+    border-radius: 3mm; padding: 4mm 5mm; font-size: 9pt; color: var(--ink-700);
+    background: var(--sky-50); border: 1px solid #bae6fd;
+    -webkit-print-color-adjust: exact; print-color-adjust: exact;
+}
+.invoice-to .row { display: flex; justify-content: space-between; gap: 3mm; padding: 0.6mm 0; }
+.invoice-to .row span:first-child { color: var(--ink-500); }
+.invoice-to .row span:last-child { font-weight: 600; color: var(--ink-900); text-align: right; }
+.status-chip {
+    display: inline-block; font-size: 7.5pt; font-weight: 700; letter-spacing: 0.5px; text-transform: uppercase;
+    background: #fef3c7; color: #b45309; padding: 0.6mm 2.5mm; border-radius: 999px;
+    -webkit-print-color-adjust: exact; print-color-adjust: exact;
+}
+
+/* ---------- Tables ---------- */
+table.premium-table {
+    width: 100%; border-collapse: separate; border-spacing: 0; margin-top: 3mm; margin-bottom: 6mm;
+    border: 1px solid var(--line); border-radius: 3mm; overflow: hidden;
+}
+table.premium-table th {
+    background: var(--navy-700); color: #ffffff; font-weight: 600; text-align: left;
+    padding: 3mm 4mm; font-size: 8.5pt; text-transform: uppercase; letter-spacing: 0.8px;
+    -webkit-print-color-adjust: exact; print-color-adjust: exact;
+}
+table.premium-table td { padding: 3.5mm 4mm; border-top: 1px solid var(--line); font-size: 9.5pt; vertical-align: top; background-color: #ffffff; }
+table.premium-table tbody tr:first-child td { border-top: none; }
+table.premium-table tbody tr:nth-child(even) td { background-color: var(--soft); -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+
+.text-right { text-align: right !important; }
+.text-center { text-align: center !important; }
+.font-bold { font-weight: 700; }
+
+.pct-pill {
+    display: inline-block; font-weight: 700; font-size: 9pt; color: var(--sky-600);
+    background: var(--sky-50); border: 1px solid #bae6fd; border-radius: 999px; padding: 0.3mm 3mm;
+    -webkit-print-color-adjust: exact; print-color-adjust: exact;
+}
+
+.duration-bar {
+    display: flex; align-items: center; justify-content: space-between;
+    margin-top: 2mm; margin-bottom: 6mm; padding: 3mm 4mm;
+    background: var(--soft); border: 1px solid var(--line); border-left: 3px solid var(--sky-600); border-radius: 2mm;
+    -webkit-print-color-adjust: exact; print-color-adjust: exact;
+}
+.duration-bar .lbl { font-size: 8.5pt; font-weight: 600; color: var(--ink-500); text-transform: uppercase; letter-spacing: 0.8px; }
+.duration-bar .val { font-size: 10pt; color: var(--navy-700); font-weight: 700; }
+
+/* ---------- Summary Area ---------- */
+.summary-wrapper { display: grid; grid-template-columns: 1fr 1.4fr; gap: 6mm; margin-top: 2mm; align-items: start; page-break-inside: avoid; }
+.summary-note { font-size: 8.5pt; color: var(--ink-500); line-height: 1.55; padding-top: 1mm; }
+.summary-card { border: 1px solid var(--line); border-radius: 3mm; overflow: hidden; }
+table.summary-block { width: 100%; border-collapse: collapse; }
+table.summary-block td { padding: 2.6mm 4mm; border-bottom: 1px solid var(--line); font-size: 9.5pt; color: var(--ink-700); }
+table.summary-block tr.grand-total td {
+    border-bottom: none; font-weight: 800; font-size: 11pt;
+    background: var(--navy-700); color: #ffffff;
+    -webkit-print-color-adjust: exact; print-color-adjust: exact;
+}
+
+/* ---------- Payment Box ---------- */
+.payment-box {
+    margin-top: 6mm; border: 1px solid var(--line); border-radius: 3mm; padding: 4.5mm 5mm;
+    background: var(--soft); page-break-inside: avoid; position: relative; overflow: hidden;
+    -webkit-print-color-adjust: exact; print-color-adjust: exact;
+}
+.payment-box::before { content: ""; position: absolute; left: 0; top: 0; bottom: 0; width: 3px; background: linear-gradient(180deg, var(--sky-500), var(--navy-700)); }
+.payment-box h3 { font-size: 8.5pt; font-weight: 700; color: var(--ink-500); margin-top: 0; margin-bottom: 3mm; text-transform: uppercase; letter-spacing: 1.2px; }
+.payment-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 4mm; }
+.payment-grid .lbl { font-size: 7.5pt; color: var(--ink-500); text-transform: uppercase; letter-spacing: 0.8px; font-weight: 600; }
+.payment-grid .val { font-size: 10pt; color: var(--ink-900); font-weight: 600; }
+.payment-grid .val.big { font-size: 12pt; color: var(--navy-700); font-weight: 800; letter-spacing: 0.5px; }
+
+.keep-together { break-inside: avoid; page-break-inside: avoid; }
+.fine-print { margin-top: 6mm; font-size: 8.5pt; color: var(--ink-500); border-top: 1px dashed var(--ink-300); padding-top: 3mm; line-height: 1.5; }
+
+/* ---------- Package Cards ---------- */
+.package-card {
+    border: 1px solid var(--line); background: #ffffff; padding: 5mm 5mm 5mm 6mm; margin-bottom: 4mm;
+    border-radius: 3mm; page-break-inside: avoid; position: relative; overflow: hidden;
+    display: none;
+}
+.package-card.active { display: block; }
+.package-card::before { content: ""; position: absolute; left: 0; top: 0; bottom: 0; width: 3px; background: linear-gradient(180deg, var(--sky-500), var(--navy-700)); }
+.package-badge { display: inline-block; font-size: 7.5pt; font-weight: 700; background-color: #e0f2fe; color: #0369a1; padding: 0.8mm 3mm; border-radius: 9999px; text-transform: uppercase; letter-spacing: 0.8px; margin-bottom: 2mm; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+.package-name { font-size: 11pt; font-weight: 700; color: var(--navy-700); margin-bottom: 2mm; }
+
+/* ---------- Warning Box ---------- */
+.legal-warning-box { background-color: #fef2f2; border: 1px solid #fecaca; border-left: 4px solid #ef4444; border-radius: 2mm; padding: 4mm 5mm; margin: 6mm 0; page-break-inside: avoid; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+.legal-warning-box h3 { color: #991b1b; margin-top: 0; margin-bottom: 1.5mm; text-transform: uppercase; font-size: 9.5pt; font-weight: 700; letter-spacing: 0.5px; }
+.legal-warning-box p { color: #7f1d1d; margin-bottom: 0; font-size: 9.5pt; }
+
+/* ==========================================
+   WORKFLOW (BAB BARU)
+   ========================================== */
+.timeline { position: relative; margin: 2mm 0 4mm 0; padding-left: 0; list-style: none; }
+.timeline-item:not(:last-child)::before {
+    content: ""; position: absolute; left: calc(4.5mm - 1px); top: 9mm; bottom: -3.5mm; width: 2px;
+    background: linear-gradient(180deg, var(--sky-500), var(--navy-700));
+}
+.timeline-item { position: relative; display: grid; grid-template-columns: 9mm 1fr; gap: 4mm; margin-bottom: 3.5mm; page-break-inside: avoid; }
+.timeline-num {
+    width: 9mm; height: 9mm; border-radius: 50%; position: relative; z-index: 1;
+    background: var(--navy-700); color: #fff; font-weight: 700; font-size: 9pt;
+    display: flex; align-items: center; justify-content: center;
+    box-shadow: 0 0 0 1.2mm #ffffff;
+    -webkit-print-color-adjust: exact; print-color-adjust: exact;
+}
+.timeline-item.highlight .timeline-num { background: linear-gradient(135deg, var(--sky-400), var(--sky-600)); }
+.timeline-body { border: 1px solid var(--line); border-radius: 2.5mm; padding: 2.8mm 4mm; background: #fff; }
+.timeline-title { font-size: 10pt; font-weight: 700; color: var(--navy-700); display: flex; justify-content: space-between; gap: 3mm; align-items: baseline; }
+.timeline-tag { font-size: 7pt; font-weight: 700; text-transform: uppercase; letter-spacing: 0.8px; color: var(--sky-600); white-space: nowrap; }
+.timeline-desc { font-size: 8.8pt; color: var(--ink-700); margin-top: 0.8mm; line-height: 1.5; }
+
+.feature-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 4mm; margin-bottom: 4mm; page-break-inside: avoid; }
+.feature-card {
+    border: 1px solid var(--line); border-radius: 3mm; padding: 4.5mm 4mm; background: var(--soft);
+    position: relative; overflow: hidden;
+    -webkit-print-color-adjust: exact; print-color-adjust: exact;
+}
+.feature-card::after { content: ""; position: absolute; left: 0; right: 0; top: 0; height: 2px; background: linear-gradient(90deg, var(--sky-500), var(--navy-700)); }
+.feature-icon {
+    width: 9mm; height: 9mm; border-radius: 2.5mm; margin-bottom: 3mm;
+    background: var(--navy-700); color: #fff; display: flex; align-items: center; justify-content: center;
+    -webkit-print-color-adjust: exact; print-color-adjust: exact;
+}
+.feature-icon svg { width: 5mm; height: 5mm; }
+.feature-title { font-size: 9.8pt; font-weight: 700; color: var(--navy-700); line-height: 1.3; margin-bottom: 1.5mm; }
+.feature-desc { font-size: 8.3pt; color: var(--ink-500); line-height: 1.5; }
+
+.support-grid { display: grid; grid-template-columns: 1fr 1.35fr; gap: 4mm; page-break-inside: avoid; }
+.support-card { border-radius: 3mm; padding: 5mm; position: relative; overflow: hidden; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+.support-card.trial { background: var(--sky-50); border: 1px solid #bae6fd; }
+.support-card.warranty { background: linear-gradient(135deg, var(--navy-900), var(--navy-700)); color: #fff; }
+.support-kicker { font-size: 7pt; font-weight: 700; letter-spacing: 1.5px; text-transform: uppercase; margin-bottom: 1.5mm; }
+.support-card.trial .support-kicker { color: var(--sky-600); }
+.support-card.warranty .support-kicker { color: var(--sky-400); }
+.support-big { font-size: 20pt; font-weight: 800; line-height: 1; letter-spacing: -0.5px; margin-bottom: 1.5mm; }
+.support-card.trial .support-big { color: var(--navy-700); }
+.support-title { font-size: 10pt; font-weight: 700; margin-bottom: 2mm; }
+.support-card.trial .support-title { color: var(--navy-700); }
+.support-desc { font-size: 8.5pt; line-height: 1.5; }
+.support-card.trial .support-desc { color: var(--ink-700); }
+.support-card.warranty .support-desc { color: #cbd5e1; }
+.support-card.warranty .support-big { color: #fff; }
+.cond-list { list-style: none; padding: 0 !important; margin: 2.5mm 0 0 0 !important; }
+.cond-list li { display: flex; gap: 2.5mm; align-items: flex-start; font-size: 8.5pt !important; color: #e2e8f0 !important; margin-bottom: 1.5mm !important; text-align: left !important; line-height: 1.45; }
+.cond-list li .chk {
+    flex-shrink: 0; width: 4mm; height: 4mm; border-radius: 50%; margin-top: 0.4mm;
+    background: var(--sky-500); color: #fff; font-size: 6.5pt; font-weight: 800;
+    display: flex; align-items: center; justify-content: center;
+}
+
+/* ---------- Signatures ---------- */
+.signatures-container { margin-top: 12mm; page-break-inside: avoid; }
+.sigs-table { display: grid; grid-template-columns: 1fr 1fr; gap: 8mm; margin-top: 6mm; }
+.sigs-cell { text-align: center; border: 1px solid var(--line); border-radius: 3mm; padding: 5mm 4mm; }
+.sig-space { height: 22mm; }
+.sig-line { width: 75%; margin: 0 auto; border-bottom: 1px solid #475569; margin-bottom: 2mm; }
+.sig-name { font-weight: 700; color: var(--navy-700); }
+.sig-title { font-size: 8.5pt; color: var(--ink-500); }
+
+/* ==========================================
+   SIDEBAR (SCREEN ONLY)
+   ========================================== */
+.sidebar-scroll::-webkit-scrollbar { width: 6px; }
+.sidebar-scroll::-webkit-scrollbar-thumb { background: #334155; border-radius: 4px; }
+
+.field {
+    width: 100%; background: #0f172a; border: 1px solid #1e293b; border-radius: 0.6rem;
+    padding: 0.6rem 0.8rem; font-size: 0.82rem; color: #f1f5f9; transition: all .15s ease;
+}
+.field::placeholder { color: #475569; }
+.field:hover { border-color: #334155; }
+.field:focus { outline: none; border-color: #0ea5e9; box-shadow: 0 0 0 3px rgba(14, 165, 233, 0.18); }
+.field-sm { padding: 0.5rem 0.7rem; font-size: 0.78rem; }
+.field-label { display: block; font-size: 10px; font-weight: 600; color: #94a3b8; margin-bottom: 0.35rem; text-transform: uppercase; letter-spacing: 0.06em; }
+select.field { appearance: none; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%2394a3b8' stroke-width='2.5'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 0.8rem center; padding-right: 2.2rem; }
+
+.side-section { background: rgba(30, 41, 59, 0.45); border: 1px solid #1e293b; border-radius: 0.9rem; padding: 1rem; }
+.side-head { display: flex; align-items: center; gap: 0.6rem; margin-bottom: 0.9rem; }
+.side-num { width: 1.4rem; height: 1.4rem; border-radius: 0.4rem; background: rgba(14,165,233,.15); color: #38bdf8; font-size: 10px; font-weight: 700; display: flex; align-items: center; justify-content: center; }
+.side-title { font-size: 11px; font-weight: 700; color: #e2e8f0; text-transform: uppercase; letter-spacing: 0.08em; }
+
+/* ---------- Pilihan Bahasa (Sidebar) ---------- */
+.lang-switch { display: inline-flex; background: #0f172a; border: 1px solid #1e293b; border-radius: 0.6rem; padding: 3px; gap: 2px; flex-shrink: 0; }
+.lang-switch button {
+    font-size: 10px; font-weight: 700; letter-spacing: 0.08em; color: #64748b;
+    padding: 0.3rem 0.55rem; border-radius: 0.45rem; transition: all .15s ease;
+}
+.lang-switch button:hover { color: #e2e8f0; }
+.lang-switch button.active { background: #0ea5e9; color: #ffffff; box-shadow: 0 2px 8px rgba(14, 165, 233, 0.35); }
+
+/* ==========================================
+   HALAMAN SATU-LEMBAR (Pendahuluan & Workflow)
+   Spasi dirapatkan agar seluruh isi muat di 1 halaman A4
+   ========================================== */
+.one-page .doc-wrapper h1, .one-page h1 { margin-bottom: 5mm !important; }
+.one-page h2 { margin-top: 5.5mm !important; margin-bottom: 2.8mm !important; }
+.one-page p { margin-bottom: 2.5mm !important; font-size: 9.4pt !important; line-height: 1.55; }
+
+/* Workflow - keunggulan */
+.one-page .feature-grid { gap: 3mm; margin-bottom: 1mm; }
+.one-page .feature-card { padding: 3.2mm 3.5mm; }
+.one-page .feature-icon { width: 7mm; height: 7mm; border-radius: 2mm; margin-bottom: 2mm; }
+.one-page .feature-icon svg { width: 4mm; height: 4mm; }
+.one-page .feature-title { font-size: 9pt; margin-bottom: 1mm; }
+.one-page .feature-desc { font-size: 7.6pt; line-height: 1.45; }
+
+/* Workflow - timeline */
+.one-page .timeline { margin: 1mm 0 1mm 0; }
+.one-page .timeline-item { grid-template-columns: 8mm 1fr; gap: 3.5mm; margin-bottom: 2mm; }
+.one-page .timeline-num { width: 8mm; height: 8mm; font-size: 8.5pt; box-shadow: 0 0 0 1mm #ffffff; }
+.one-page .timeline-item:not(:last-child)::before { left: calc(4mm - 1px); top: 8mm; bottom: -2mm; }
+.one-page .timeline-body { padding: 2mm 3.5mm; border-radius: 2mm; }
+.one-page .timeline-title { font-size: 9.2pt; }
+.one-page .timeline-desc { font-size: 7.9pt; line-height: 1.42; margin-top: 0.4mm; text-align: left; }
+
+/* Workflow - purna jual */
+.one-page .support-grid { gap: 3mm; }
+.one-page .support-card { padding: 3.8mm 4.5mm; }
+.one-page .support-big { font-size: 15pt; margin-bottom: 1mm; }
+.one-page .support-title { font-size: 9pt; margin-bottom: 1mm; }
+.one-page .support-desc { font-size: 7.8pt; line-height: 1.45; }
+.one-page .cond-list { margin-top: 1.8mm !important; }
+.one-page .cond-list li { font-size: 7.8pt !important; margin-bottom: 1mm !important; }
+
+/* Pendahuluan */
+.one-page .info-party { padding: 3.2mm 4.5mm; }
+.one-page .info-party-name { font-size: 12pt; }
+.one-page .info-fact { padding: 2.8mm 4mm; }
+.one-page .info-toc-row { padding: 2.2mm 0; }
+
+/* Workflow: timeline 2 kolom (langkah 1-4 kiri, 5-7 kanan) */
+.one-page .timeline {
+    display: grid; grid-template-columns: 1fr 1fr; grid-template-rows: repeat(4, auto);
+    grid-auto-flow: column; column-gap: 5mm;
+}
+.one-page .timeline-item:nth-child(4)::before { display: none; }
+
+/* Workflow: kartu keunggulan dengan ikon di samping */
+.one-page .feature-card { display: grid; grid-template-columns: 7mm 1fr; column-gap: 2.8mm; align-items: start; }
+.one-page .feature-icon { grid-row: span 2; margin-bottom: 0; }
+
+/* Workflow: penyesuaian akhir agar muat 1 halaman */
+.one-page .feature-card { padding: 2.8mm 3.2mm; align-items: center; }
+.one-page .feature-title { margin-bottom: 0.3mm; }
+.one-page .timeline-item, .one-page .timeline-title, .one-page .timeline-desc { text-align: left !important; }
+.one-page .timeline-title { flex-wrap: wrap; column-gap: 2mm; row-gap: 0; }
+.one-page .support-grid { grid-template-columns: 0.72fr 1.5fr; }
+.one-page h1 { margin-bottom: 4mm !important; }
+.one-page h2 { margin-top: 4.5mm !important; margin-bottom: 2.5mm !important; }
+.one-page .timeline-item { margin-bottom: 1.6mm; }
+.one-page .timeline-item:not(:last-child)::before { bottom: -1.6mm; }
+.one-page .timeline-desc { line-height: 1.36; }
+.one-page h1 { font-size: 15.5pt !important; padding-bottom: 2.5mm !important; }
+.one-page .feature-card { padding: 2.4mm 3mm; }
+.one-page .feature-title { font-size: 8.6pt; line-height: 1.25; }
+.one-page .timeline-body { padding: 1.8mm 3.2mm; }
+.one-page .timeline-title { font-size: 8.9pt; }
+.one-page .timeline-desc { font-size: 7.7pt; }
+.one-page .support-card { padding: 3.2mm 4mm; }
+.one-page .support-kicker { margin-bottom: 1mm; }
+.one-page .support-big { font-size: 13.5pt; }
+.one-page .support-desc, .one-page .cond-list li { font-size: 7.6pt !important; }
